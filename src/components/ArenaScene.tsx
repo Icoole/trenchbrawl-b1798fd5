@@ -336,7 +336,7 @@ function Sparks({
   });
 
   return (
-    <points ref={points} geometry={geo}>
+    <points ref={points} geometry={geo.g}>
       <pointsMaterial
         color={color}
         size={big ? 0.2 : 0.13}
