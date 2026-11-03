@@ -284,9 +284,10 @@ function Sparks({
   const age = useRef(99);
   const vel = useMemo(() => new Float32Array(SPARK_N * 3), []);
   const geo = useMemo(() => {
+    const attr = new THREE.BufferAttribute(new Float32Array(SPARK_N * 3), 3);
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(SPARK_N * 3), 3));
-    return g;
+    g.setAttribute("position", attr);
+    return { g, attr };
   }, []);
 
   useFrame((_, rawDt) => {
@@ -295,7 +296,7 @@ function Sparks({
     if (s.sparksT !== lastT.current) {
       lastT.current = s.sparksT;
       age.current = 0;
-      const pos = geo.attributes.position as THREE.BufferAttribute;
+      const pos = geo.attr;
       const px = big ? -1.6 : 0.4;
       const py = 1.9;
       const pz = 0.6;
@@ -316,15 +317,16 @@ function Sparks({
     const mat = p.material as THREE.PointsMaterial;
     if (age.current < 0.9) {
       age.current += dt;
-      const pos = geo.attributes.position as THREE.BufferAttribute;
+      const pos = geo.attr;
       for (let i = 0; i < SPARK_N; i++) {
+        const j = i * 3;
         pos.setXYZ(
           i,
-          pos.getX(i) + vel[i * 3] * dt,
-          pos.getY(i) + vel[i * 3 + 1] * dt,
-          pos.getZ(i) + vel[i * 3 + 2] * dt,
+          pos.getX(i) + (vel[j] ?? 0) * dt,
+          pos.getY(i) + (vel[j + 1] ?? 0) * dt,
+          pos.getZ(i) + (vel[j + 2] ?? 0) * dt,
         );
-        vel[i * 3 + 1] -= 6 * dt;
+        vel[j + 1] = (vel[j + 1] ?? 0) - 6 * dt;
       }
       pos.needsUpdate = true;
       mat.opacity = Math.max(0, 1 - age.current / 0.9);
