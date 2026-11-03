@@ -382,22 +382,7 @@ function ImpactLight({ battle }: { battle: React.RefObject<BattleState> }) {
 }
 
 /** The battle director: one fixed 10-second loop driving fighters, HUD and effects. */
-function Battle() {
-  const battle = useRef<BattleState>({
-    t: 0,
-    hpA: 1,
-    hpB: 1,
-    hitA: 0,
-    hitB: 0,
-    flash: 0,
-    shake: 0,
-    charge: 0,
-    waveT: -1,
-    waveBig: 0,
-    sparksT: -1,
-    sparksBig: 0,
-  });
-
+function Battle({ battle }: { battle: React.RefObject<BattleState> }) {
   useFrame((_, rawDt) => {
     const s = battle.current;
     const dt = Math.min(rawDt, 0.05);
@@ -565,5 +550,5 @@ export default function ArenaScene({ className }: { className?: string }) {
 
 /** Battle contents live in their own component so texture loading suspends inside it. */
 function BattleInner({ battle }: { battle: React.RefObject<BattleState> }) {
-  return <Battle battleRef={battle} />;
+  return <Battle battle={battle} />;
 }
