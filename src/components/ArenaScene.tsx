@@ -7,8 +7,8 @@ import pepeAsset from "@/assets/fighter-pepe.png.asset.json";
 
 const DOGE_URL = dogeAsset.url;
 const PEPE_URL = pepeAsset.url;
-const CYAN = "#3ec9f5";
-const EMBER = "#ff9a2e";
+const CYAN = "#ffc43d";
+const EMBER = "#ff4a1c";
 const LOW_HP = "#ff5d4d";
 
 /** One full battle loop: idle → DOGE jab → PEPE charges a SUPER → super smash → recover → KO reset. */
@@ -181,7 +181,7 @@ function HealthBar({
     <group position={[side * 2.4, 4.35, 0]}>
       <mesh>
         <planeGeometry args={[W + 0.2, 0.4]} />
-        <meshBasicMaterial color="#081527" toneMapped={false} />
+        <meshBasicMaterial color="#1a0604" toneMapped={false} />
       </mesh>
       <mesh ref={fill} position={[0, 0, 0.01]}>
         <planeGeometry args={[W, 0.26]} />
@@ -459,12 +459,12 @@ function Arena() {
       {/* dais */}
       <mesh position={[0, -0.3, 0]}>
         <cylinderGeometry args={[5.6, 6.2, 0.6, 64]} />
-        <meshStandardMaterial color="#122a52" metalness={0.65} roughness={0.35} />
+        <meshStandardMaterial color="#3a1208" metalness={0.65} roughness={0.35} />
       </mesh>
       {/* arena floor */}
       <mesh position={[0, 0.01, 0]} rotation-x={-Math.PI / 2}>
         <circleGeometry args={[5.6, 64]} />
-        <meshStandardMaterial color="#0c1f42" metalness={0.5} roughness={0.55} />
+        <meshStandardMaterial color="#24090a" metalness={0.5} roughness={0.55} />
       </mesh>
       {/* glowing boundary ring */}
       <mesh ref={ring} position={[0, 0.03, 0]} rotation-x={-Math.PI / 2}>
@@ -521,26 +521,26 @@ export default function ArenaScene({ className }: { className?: string }) {
   return (
     <div ref={wrapRef} data-arena className={className} aria-hidden="true">
       <Canvas
-        camera={{ position: [0, 2.4, 9.5], fov: 42 }}
+        camera={{ position: [0, 3.2, 14], fov: 40 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
         onCreated={() => {
           wrapRef.current?.setAttribute("data-scene-ready", "");
         }}
       >
-        <fog attach="fog" args={["#0a1c3a", 13, 28]} />
+        <fog attach="fog" args={["#1a0806", 13, 28]} />
         <ambientLight intensity={0.55} />
         <pointLight position={[-6, 5, 5]} intensity={140} color={CYAN} />
         <pointLight position={[6, 3.5, 2]} intensity={90} color={EMBER} />
-        <pointLight position={[0, 4, 6]} intensity={60} color="#8fd8ff" />
+        <pointLight position={[0, 4, 6]} intensity={60} color="#ffd98a" />
         <CameraRig battle={battle}>
           <Suspense fallback={null}>
             <BattleInner battle={battle} />
           </Suspense>
           <Arena />
-          <Sparkles count={90} scale={[16, 8, 16]} size={3} speed={0.35} color="#7ad9ff" position={[0, 3, 0]} />
+          <Sparkles count={90} scale={[16, 8, 16]} size={3} speed={0.35} color="#ffcf5a" position={[0, 3, 0]} />
           <Environment resolution={128}>
-            <Lightformer intensity={2} position={[0, 5, 0]} scale={[10, 10, 1]} color="#bcdcff" />
+            <Lightformer intensity={2} position={[0, 5, 0]} scale={[10, 10, 1]} color="#ffe2b0" />
             <Lightformer intensity={1.4} color={CYAN} position={[-6, 1, -1]} rotation-y={Math.PI / 2} scale={[14, 2, 1]} />
             <Lightformer intensity={1.1} color={EMBER} position={[6, 1, 1]} rotation-y={-Math.PI / 2} scale={[10, 2, 1]} />
           </Environment>

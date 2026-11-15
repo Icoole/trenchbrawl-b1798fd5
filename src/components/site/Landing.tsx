@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ArenaScene from "@/components/ArenaScene";
-import logoAsset from "@/assets/trench-brawl-logo.jpg.asset.json";
+import logoAsset from "@/assets/trench-brawl-logo-v2.jpg.asset.json";
 import dogeImg from "@/assets/fighter-doge.png.asset.json";
 import pepeImg from "@/assets/fighter-pepe.png.asset.json";
 import bonkImg from "@/assets/fighter-bonk.png.asset.json";
@@ -17,20 +17,33 @@ import mogImg from "@/assets/fighter-mog.png.asset.json";
 import turboImg from "@/assets/fighter-turbo.png.asset.json";
 
 const LOGO_URL = logoAsset.url;
+const TOKEN_ADDRESS = "5Htub56zFC6gyp4UKKjEb21JTSrWheHbNwbxmXedbonk";
 
 const NAV_LINKS = [
   { label: "Fighters", href: "#fighters" },
-  { label: "XP Program", href: "#xp" },
-  { label: "Battle Board", href: "#battle-board" },
+  { label: "XP", href: "#xp" },
+  { label: "Powers", href: "#powers" },
+  { label: "$SAVIOUR", href: "#saviour" },
   { label: "Roadmap", href: "#roadmap" },
   { label: "FAQ", href: "#faq" },
 ];
 
 const STATS = [
-  { value: "14", label: "Launch fighters" },
-  { value: "10 XP", label: "Per CPU win" },
-  { value: "1,000 XP", label: "Per activation batch" },
-  { value: "24h", label: "Claim window" },
+  { value: "100 XP", label: "Per verified CPU win" },
+  { value: "1,000", label: "XP per activation block" },
+  { value: "500K", label: "$SAVIOUR fighter pool" },
+  { value: "100K", label: "$SAVIOUR referral pool" },
+];
+
+const LOOP = [
+  "Guest practice or connect a Solana wallet",
+  "Set X handle & Dominant Fighter",
+  "Choose a fighter and arena",
+  "Fight the CPU — one round",
+  "Server verifies the result",
+  "Win = 100 XP · Loss = 0 XP",
+  "Activate qualifying XP",
+  "Compete for the Top 100",
 ];
 
 const FIGHTERS: { name: string; note: string; tag: string; img: string }[] = [
@@ -51,129 +64,75 @@ const FIGHTERS: { name: string; note: string; tag: string; img: string }[] = [
 ];
 
 const XP_TABLE = [
-  { action: "CPU win", amount: "10 XP" },
-  { action: "CPU loss", amount: "0 XP" },
-  { action: "Token conversion", amount: "1 XP = 0.5 $TRENCH" },
-  { action: "Complete activation batch", amount: "1,000 XP" },
-  { action: "Wins needed per batch", amount: "100 wins" },
-  { action: "Activation payment per batch", amount: "0.1 SOL" },
-  { action: "$TRENCH allocated per activated batch", amount: "500 $TRENCH at TGE" },
+  { action: "Verified CPU victory", amount: "100 fighting XP" },
+  { action: "Verified CPU defeat", amount: "0 XP (fight & loss saved)" },
+  { action: "XP activation block", amount: "1,000 qualifying XP" },
+  { action: "Activation fee", amount: "Proposed 0.1 SOL / block" },
+  { action: "Activation window", amount: "24 hours" },
+  { action: "Per-player cap", amount: "1,000,000 XP" },
+  { action: "Programme ceiling", amount: "1,000,000,000 XP" },
 ];
 
-const CLOCK_STATES = [
-  { title: "Accumulating", desc: "e.g. 450/1,000 — claim disabled, no claim window started yet." },
-  { title: "Ready", desc: "1,000/1,000 — claim enabled, the 24-hour timer is running." },
-  { title: "Claimed", desc: "Activation confirmed — 500 $TRENCH added to your recorded TGE balance." },
-  { title: "Expired", desc: "24 hours passed without a claim — that batch can no longer be activated." },
+const POWERS = [
+  { name: "FUD CALL", desc: "Summon an approved FUD move against an opponent — like an FTX-style hammer — without damaging yourself." },
+  { name: "FUD ESCAPE", desc: "Escape any FUD unhurt. The protected FUD can't reduce your health bar." },
+  { name: "SPECIAL MOVE", desc: "Unleash fighter-specific signature attacks and effects." },
 ];
 
 const BOARD_ROWS = [
-  { rank: 1, handle: "@example_alpha", fights: "2,500", losses: "700", wins: "1,800", xp: "18,000", trench: "9,000" },
-  { rank: 2, handle: "@example_beta", fights: "1,800", losses: "550", wins: "1,250", xp: "12,000", trench: "6,000" },
-  { rank: 3, handle: "@example_gamma", fights: "600", losses: "200", wins: "400", xp: "4,000", trench: "2,000" },
+  { who: "Player A", rank: "42", xp: "75,000", powers: true, pool: false },
+  { who: "Player B", rank: "42", xp: "120,000", powers: true, pool: true },
+  { who: "Player C", rank: "101", xp: "150,000", powers: false, pool: false },
+];
+
+const UTILITIES = [
+  { t: "Top 100 competitive prizes", d: "500,000 $SAVIOUR Season 1 pool — 100,000 activated XP minimum." },
+  { t: "Top 50 referral prizes", d: "100,000 $SAVIOUR Season 1 referral pool." },
+  { t: "Top 100 gameplay privilege", d: "Rank-linked FUD CALL, FUD ESCAPE and special moves — no holding required." },
+  { t: "Human PvP wager asset", d: "$SAVIOUR proposed for V2 human-vs-human wagers. CPU matches are never wagered." },
+  { t: "Buyback & burn", d: "50% of future PvP platform fees plus part of the activation-SOL ecosystem bucket." },
+  { t: "Season 2 funding", d: "Part of 50% of SOL activation proceeds reserved for future rewards and buyback/burn." },
 ];
 
 const ROADMAP = [
-  {
-    phase: "Phase 1",
-    title: "Playable V1",
-    points: [
-      "14 fighters with their developed combat animations",
-      "CPU-only battles — XP from wins, never from losses",
-      "Guest practice plus persistent player accounts",
-      "Public Battle Board with fights, XP and projected $TRENCH",
-    ],
-  },
-  {
-    phase: "Phase 2",
-    title: "XP activation + Solana",
-    points: [
-      "1,000-XP batching with 24-hour claim windows",
-      "Solana wallet connection for the 0.1 SOL activation",
-      "Claimed / expired states, caps and the global XP budget",
-      "Auditable 50% ecosystem / 50% development split of deposits",
-    ],
-  },
-  {
-    phase: "Phase 3",
-    title: "Token preparation & TGE",
-    points: [
-      "Finalize the token contract and allocation",
-      "Launch $TRENCH at TGE",
-      "Deliver earned, activated and eligible allocations",
-      "Enable $TRENCH-holder gameplay utilities",
-    ],
-  },
-  {
-    phase: "Phase 4",
-    title: "V2 — PvP & wagering",
-    points: [
-      "Human-versus-human challenges and matching",
-      "$TRENCH — not SOL — as the wager asset",
-      "Secure settlement and independent match adjudication",
-      "Battle fees: 50% marketing/XP, 50% to the Top 100 players",
-    ],
-  },
+  { gate: "A", title: "Public landing page", cond: "New branding, accurate claims, DNS/HTTPS, support, links, terms/privacy." },
+  { gate: "B", title: "Closed playable beta", cond: "CPU game, selected fighters, improved hitboxes, audio, stability, honest no-reward messaging." },
+  { gate: "C", title: "Public XP progression", cond: "Production trusted verifier, legacy XP path revoked, abuse controls and monitoring." },
+  { gate: "D", title: "Activated-XP competition", cond: "Secure activation payments, 24h expiry, ranking, Top 100 eligibility, deterministic powers." },
+  { gate: "E", title: "$SAVIOUR prize distribution", cond: "Funding, final pro-rata formulas, snapshots, audit/treasury controls, terms and approval." },
+  { gate: "V2", title: "Human PvP & wagering", cond: "Separate architecture, settlement integrity, legal clearance and published fee/wager terms." },
 ];
 
 const FAQS = [
-  {
-    q: "Do I need to wager to play Trench Brawl V1?",
-    a: "No. V1 is CPU-only and non-wagered. Wagered PvP is reserved for V2 between human players using $TRENCH.",
-  },
-  {
-    q: "How do I earn XP?",
-    a: "Win a fight against the CPU. Each win earns 10 XP; losses earn 0 XP.",
-  },
-  {
-    q: "Does earning 1,000 XP send $TRENCH to my wallet?",
-    a: "No. A qualifying batch must be activated with 0.1 SOL within its 24-hour window. A confirmed activation establishes a planned 500-$TRENCH TGE allocation, not an immediate token transfer.",
-  },
-  {
-    q: "What happens if I miss the deadline?",
-    a: "That complete 1,000-XP batch is marked Expired and is not eligible for activation under the current rules. New XP is tracked in the next batch, which has its own claim clock.",
-  },
-  {
-    q: "What counts for my Battle Board rank?",
-    a: "Activated XP, not merely earned XP. The displayed $TRENCH amount is a projected allocation until delivery at TGE.",
-  },
-  {
-    q: "How many $TRENCH can I earn?",
-    a: "The individual cap is 1,000,000 eligible activated XP — equal to 500,000 $TRENCH at the pre-TGE conversion — subject to the overall program pool of 1,000,000,000 XP.",
-  },
-  {
-    q: "Are NFTs part of the project?",
-    a: "No. The NFT mint and NFT-based rewards have been removed from the plan.",
-  },
-  {
-    q: "Where do XP activation deposits go?",
-    a: "50% funds $TRENCH liquidity, buybacks and XP-program sustainability; 50% supports development, game features and distribution.",
-  },
+  { q: "Does one CPU win pay me $SAVIOUR?", a: "No. A verified CPU win awards 100 fighting XP. $SAVIOUR is distributed only under the separate season pool rules after eligibility and funding conditions are met." },
+  { q: "Who gets Top 100 powers?", a: "Every eligible official Top 100 player — no minimum of 100,000 activated XP is required for the powers themselves." },
+  { q: "Who qualifies for the 500,000 $SAVIOUR pool?", a: "Only official Top 100 players who also have at least 100,000 activated fighting XP at the published qualification snapshot." },
+  { q: "Do I keep powers after dropping to rank 101?", a: "No. Powers cease when eligibility ends, according to the published rank-update and match-timing rules." },
+  { q: "How do referral rewards work?", a: "A qualifying referrer earns referral XP equal to 20% of a referred player's successfully activated fighting XP. Only qualified Top 50 referrers share the separate 100,000 $SAVIOUR pool." },
+  { q: "Are the season pools equally divided?", a: "No formula has been approved. Both distribution formulas and the treatment of unallocated tokens must be published before payouts." },
+  { q: "Do I need $SAVIOUR to play V1?", a: "No. V1 CPU practice does not require token ownership or wagers. Official reward eligibility has separate conditions." },
+  { q: "Are NFTs or CPU wagers included?", a: "No. NFTs were removed, and V1 CPU battles are not wagered." },
 ];
 
-function SectionHeading({
-  kicker,
-  title,
-  children,
-}: {
-  kicker: string;
-  title: React.ReactNode;
-  children?: React.ReactNode;
-}) {
+function Heading({ num, kicker, title, children }: { num: string; kicker: string; title: React.ReactNode; children?: React.ReactNode }) {
   return (
-    <div className="mx-auto mb-12 max-w-3xl text-center">
-      <p className="text-sm font-bold uppercase tracking-[0.25em] text-ember">{kicker}</p>
-      <h2 className="mt-3 text-4xl font-extrabold text-foreground sm:text-5xl">{title}</h2>
-      {children ? <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">{children}</p> : null}
+    <div className="mb-12 max-w-3xl">
+      <div className="flex items-center gap-3">
+        <span className="font-display rounded-lg bg-ember px-3 py-1 text-lg text-foreground">{num}</span>
+        <p className="text-sm font-black uppercase tracking-[0.3em] text-primary">{kicker}</p>
+      </div>
+      <h2 className="mt-4 text-5xl uppercase leading-[0.95] text-foreground sm:text-6xl">{title}</h2>
+      {children ? <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">{children}</p> : null}
     </div>
   );
 }
 
-function Chip({ children }: { children: React.ReactNode }) {
+function Notice({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-border bg-card/70 px-4 py-2 text-sm font-semibold text-foreground/90">
-      {children}
-    </span>
+    <div className="stripes rounded-xl border-2 border-dashed border-primary/50 p-5">
+      <p className="text-xs font-black uppercase tracking-widest text-primary">{label}</p>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{children}</p>
+    </div>
   );
 }
 
@@ -196,10 +155,10 @@ function FighterCard({ f }: { f: (typeof FIGHTERS)[number] }) {
         style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
       >
         {/* Front — fighter portrait */}
-        <div className="backface-hidden absolute inset-0 overflow-hidden rounded-2xl border border-border bg-card shadow-lg shadow-primary/10 transition-colors duration-300 group-hover:border-primary/60">
+        <div className="backface-hidden absolute inset-0 overflow-hidden slab rounded-2xl transition-colors duration-300 group-hover:border-primary/60">
           <img src={f.img} alt={`${f.name} fighter art`} loading="lazy" className="h-full w-full object-cover" />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-abyss via-abyss/85 to-transparent px-4 pb-3 pt-10">
-            <p className="text-lg font-black uppercase tracking-wide text-foreground">{f.name}</p>
+            <p className="font-display text-2xl uppercase tracking-wide text-foreground">{f.name}</p>
             <p className="text-xs font-bold uppercase tracking-widest text-ember">{f.tag}</p>
           </div>
         </div>
@@ -210,10 +169,10 @@ function FighterCard({ f }: { f: (typeof FIGHTERS)[number] }) {
         >
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,color-mix(in_oklab,var(--color-primary)_22%,transparent),transparent_60%)]" />
           <p className="text-xs font-bold uppercase tracking-widest text-primary">{f.name}</p>
-          <p className="mt-1 text-xl font-black uppercase text-ember">{f.tag}</p>
+          <p className="mt-1 font-display text-2xl uppercase text-ember">{f.tag}</p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.note}</p>
           <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            10 XP per CPU win
+            100 XP per verified CPU win
           </p>
         </div>
       </button>
@@ -223,31 +182,20 @@ function FighterCard({ f }: { f: (typeof FIGHTERS)[number] }) {
 
 function Nav() {
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
-      <div className="panel-glass mx-auto mt-4 flex max-w-6xl items-center justify-between gap-4 rounded-2xl px-4 py-3 sm:px-6">
+    <header className="fixed inset-x-0 top-0 z-50 border-b-2 border-border bg-abyss/85 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5">
         <a href="#top" className="flex items-center gap-3">
-          <img src={LOGO_URL} alt="Trench Brawl logo" className="h-10 w-10 rounded-xl object-cover" />
-          <span className="text-base font-black uppercase tracking-wide whitespace-nowrap text-foreground sm:text-lg">
-            Trench <span className="text-primary">Brawl</span>
-          </span>
+          <img src={LOGO_URL} alt="Trench Brawl logo" className="h-11 w-11 rounded-lg object-cover" />
+          <span className="font-display hidden text-xl uppercase text-foreground sm:inline">Trench <span className="text-primary">Brawl</span></span>
         </a>
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
-            >
+            <a key={l.href} href={l.href} className="rounded-lg px-3 py-2 text-sm font-black uppercase tracking-wide text-muted-foreground transition-colors hover:bg-secondary hover:text-primary">
               {l.label}
             </a>
           ))}
         </nav>
-        <a
-          href="#fighters"
-          className="rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-primary-foreground transition-transform hover:scale-105 sm:px-5"
-        >
-          Enter the Trench
-        </a>
+        <a href="#fighters" className="btn-game font-display rounded-xl px-5 py-2 text-lg uppercase">Play</a>
       </div>
     </header>
   );
@@ -255,56 +203,104 @@ function Nav() {
 
 function Hero() {
   return (
-    <section id="top" className="arena-bg relative flex min-h-[100svh] flex-col overflow-hidden">
-      <ArenaScene className="absolute inset-0" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-abyss to-transparent" />
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-end px-4 pb-16 pt-40 text-center">
-        <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2">
-          <Chip>Official Brand Edition</Chip>
-          <Chip>Version 1.2 · October 2026</Chip>
+    <section id="top" className="relative overflow-hidden pt-16">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_70%_40%,color-mix(in_oklab,var(--color-ember)_30%,transparent),transparent_70%)]" />
+      <div className="relative mx-auto grid min-h-[92svh] max-w-7xl items-center gap-6 px-4 lg:grid-cols-[1fr_1.15fr]">
+        <div className="relative z-10 py-12 text-center lg:text-left">
+          <p className="inline-block rounded-lg border-2 border-primary/60 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.25em] text-primary">
+            Saviour Edition · V1.4
+          </p>
+          <img src={LOGO_URL} alt="Trench Brawl" className="mx-auto mt-6 w-64 rounded-3xl border-4 border-primary/40 shadow-2xl sm:w-80 lg:mx-0" />
+          <h1 className="text-fire mt-6 text-4xl uppercase leading-none sm:text-6xl">Fight · Outplay · Dominate</h1>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg lg:mx-0">
+            A meme-inspired, Solana-connected fighting game built around fast combat, fighter identities and
+            competitive progression. Earn verified XP, climb the Battle Board and unlock Top 100 powers.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4 lg:justify-start">
+            <a href="#fighters" className="btn-game font-display rounded-xl px-8 py-3 text-xl uppercase">Choose fighter</a>
+            <a href="#saviour" className="font-display rounded-xl border-2 border-border bg-card px-8 py-3 text-xl uppercase text-foreground transition-colors hover:border-primary">$SAVIOUR</a>
+          </div>
         </div>
-        <h1 className="mt-6 text-5xl font-black uppercase leading-none tracking-tight sm:text-7xl lg:text-8xl">
-          <span className="text-stroke-glow text-primary">Fight</span>
-          <span className="text-foreground">.</span>{" "}
-          <span className="text-foreground">Outplay</span>
-          <span className="text-foreground">.</span>{" "}
-          <span className="ember-glow text-ember">Dominate</span>
-          <span className="text-foreground">.</span>
-        </h1>
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          A Solana-native meme fighting game built around playable character identity, XP-based token
-          activation and a progression that evolves from CPU battles in V1 to human PvP and $TRENCH
-          wagering in V2.
-        </p>
-        <div className="pointer-events-auto mt-8 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href="#xp"
-            className="rounded-full bg-primary px-7 py-3 text-base font-extrabold text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105"
-          >
-            Earn XP Now
-          </a>
-          <a
-            href="#roadmap"
-            className="rounded-full border border-border bg-card/70 px-7 py-3 text-base font-extrabold text-foreground transition-colors hover:bg-accent"
-          >
-            See the Roadmap
-          </a>
+        <div className="relative h-[52svh] min-h-[340px] lg:h-[80svh]">
+          <ArenaScene className="absolute inset-0" />
+          <div className="font-display pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 rounded-lg bg-ember px-4 py-1 text-xl uppercase text-foreground shadow-lg">VS</div>
         </div>
       </div>
+      <Marquee />
     </section>
+  );
+}
+
+function Marquee() {
+  const items = [...FIGHTERS, ...FIGHTERS];
+  return (
+    <div className="relative -rotate-1 overflow-hidden border-y-4 border-abyss bg-primary py-3">
+      <div className="animate-marquee flex w-max gap-8">
+        {items.map((f, i) => (
+          <span key={i} className="font-display flex items-center gap-3 text-2xl uppercase text-primary-foreground">
+            <img src={f.img} alt="" className="h-9 w-9 rounded-full border-2 border-abyss object-cover" />
+            {f.name} <span className="text-ember">★</span>
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 
 function StatsStrip() {
   return (
-    <section className="relative z-10 -mt-10">
-      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 px-4 sm:grid-cols-4">
+    <section className="mx-auto max-w-7xl px-4 py-16">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {STATS.map((s) => (
-          <div key={s.label} className="card-glow rounded-2xl border border-border bg-card px-6 py-5 text-center">
-            <p className="text-3xl font-black text-primary">{s.value}</p>
-            <p className="mt-1 text-sm font-semibold text-muted-foreground">{s.label}</p>
+          <div key={s.label} className="slab rounded-2xl p-6 text-center">
+            <p className="font-display text-fire text-4xl sm:text-5xl">{s.value}</p>
+            <p className="mt-2 text-xs font-black uppercase tracking-widest text-muted-foreground">{s.label}</p>
           </div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function OverviewSection() {
+  const [copied, setCopied] = useState(false);
+  const rows = [
+    ["Game", "Trench Brawl"], ["Network", "Solana"], ["Website", "trenchbrawl.xyz"],
+    ["Ecosystem token", "$SAVIOUR"], ["Tagline", "Fight · Outplay · Dominate"],
+  ];
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-24">
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div>
+          <Heading num="01" kicker="Overview" title={<>The <span className="text-primary">Trench</span> awaits</>}>
+            V1 centres on single-round, non-wagered fights against CPU opponents. Wallet-connected players earn
+            verified fighting XP, activate qualifying XP, compete on the Battle Board and gain rank-based powers.
+            V2 introduces human-versus-human competition and proposed $SAVIOUR wagering.
+          </Heading>
+          <Notice label="Token update">$SAVIOUR replaces the former $TRENCH token in all product economics, rewards and token references.</Notice>
+        </div>
+        <div className="slab rounded-2xl p-6">
+          {rows.map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-4 border-b border-border py-3 last:border-0">
+              <span className="text-sm font-bold uppercase tracking-wide text-muted-foreground">{k}</span>
+              <span className="font-display text-lg text-foreground">{v}</span>
+            </div>
+          ))}
+          <div className="mt-4 rounded-xl bg-abyss p-4">
+            <p className="text-xs font-black uppercase tracking-widest text-primary">Token address</p>
+            <div className="mt-2 flex items-center gap-3">
+              <code className="min-w-0 flex-1 break-all text-sm text-foreground">{TOKEN_ADDRESS}</code>
+              <button
+                type="button"
+                onClick={() => { navigator.clipboard?.writeText(TOKEN_ADDRESS); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+                className="btn-game shrink-0 rounded-lg px-3 py-1.5 text-xs font-black uppercase"
+              >
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Confirmed by the project owner; independent on-chain verification must be completed before public distributions.</p>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -312,97 +308,122 @@ function StatsStrip() {
 
 function FightersSection() {
   return (
-    <section id="fighters" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-24">
-      <SectionHeading kicker="Gameplay & Fighters" title="Choose your fighter">
-        Players control the fighter directly — movement, punches, kicks, blocks, jumps and special
-        moves. Fight the CPU, win, and build a public record of victories and activated XP.
-      </SectionHeading>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {FIGHTERS.map((f) => (
-          <FighterCard key={f.name} f={f} />
-        ))}
+    <section id="fighters" className="stripes scroll-mt-20 border-y-2 border-border bg-abyss py-24">
+      <div className="mx-auto max-w-7xl px-4">
+        <Heading num="02" kicker="Gameplay & fighters" title="Choose your fighter">
+          Pick a different fighter every match; your Dominant Fighter tracks community preference separately.
+          Hover or tap a card to see the fighter's move.
+        </Heading>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {FIGHTERS.map((f) => <FighterCard key={f.name} f={f} />)}
+        </div>
+        <div className="mt-14">
+          <p className="font-display mb-5 text-2xl uppercase text-foreground">The core loop</p>
+          <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {LOOP.map((step, i) => (
+              <li key={step} className="slab flex items-center gap-3 rounded-xl p-4">
+                <span className="font-display flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-lg text-primary-foreground">{i + 1}</span>
+                <span className="text-sm font-bold text-foreground">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <Notice label="Guests & wallets">Guests can play practice CPU fights without saving rewards. Sign in with a Solana wallet signature — Phantom, Solflare, Backpack and compatible providers.</Notice>
+          <Notice label="Roster control">The launch target is 14 fighters; nine are reported playable. Final roster, moves, animations and hitboxes still require sign-off.</Notice>
+        </div>
       </div>
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        The fight loop: <span className="font-bold text-foreground">Select Fighter → Fight CPU → Win → Earn 10 XP → Accumulate → Activate 1,000-XP batches</span>
-      </p>
     </section>
   );
 }
 
 function XpSection() {
-  const flow = ["100 CPU wins", "1,000 XP", "0.1 SOL activation", "500 $TRENCH at TGE"];
   return (
-    <section id="xp" className="scroll-mt-24 bg-abyss/60 py-24">
-      <div className="mx-auto max-w-6xl px-4">
-        <SectionHeading kicker="XP Program" title="Earn. Activate. Claim.">
-          XP is earned through successful CPU fights in Version 1. It is not a cryptocurrency — and
-          earning XP alone never delivers $TRENCH to a wallet.
-        </SectionHeading>
-
-        <div className="grid gap-4 sm:grid-cols-4">
-          {flow.map((step, i) => (
-            <div key={step} className="relative">
-              <div className="card-glow flex h-full flex-col items-center rounded-2xl border border-border bg-card p-6 text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                  Step {i + 1}
-                </span>
-                <p className="mt-2 text-lg font-extrabold text-foreground">{step}</p>
-              </div>
-              {i < flow.length - 1 ? (
-                <span className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 text-2xl font-black text-ember sm:block">
-                  →
-                </span>
-              ) : null}
+    <section id="xp" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-24">
+      <Heading num="03" kicker="XP earning & activation" title={<>Win. Stack. <span className="text-ember">Activate.</span></>}>
+        There is no fixed amount of $SAVIOUR per XP, fight, activation or wallet. Any $SAVIOUR distribution comes
+        exclusively from a defined season pool and its published rules.
+      </Heading>
+      <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
+        <div className="slab overflow-hidden rounded-2xl">
+          {XP_TABLE.map((r) => (
+            <div key={r.action} className="flex items-center justify-between gap-4 border-b border-border px-6 py-4 last:border-0">
+              <span className="text-sm font-bold text-muted-foreground">{r.action}</span>
+              <span className="font-display text-right text-lg text-primary">{r.amount}</span>
             </div>
           ))}
         </div>
+        <div className="space-y-4">
+          <div className="slab rounded-2xl p-6">
+            <p className="font-display text-2xl uppercase text-foreground">Separate accounts</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Earned XP, activated fighting XP, referral XP, expired XP and reversals are tracked separately.
+              Unactivated and expired XP don't count as activated fighting XP.
+            </p>
+          </div>
+          <Notice label="No fixed conversion">The earlier XP-to-token conversion was superseded. The 1,000,000,000-XP ceiling is not a promise of any total token emission.</Notice>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PowersSection() {
+  return (
+    <section id="powers" className="scroll-mt-20 border-y-2 border-border bg-abyss py-24">
+      <div className="mx-auto max-w-7xl px-4">
+        <Heading num="04" kicker="Battle Board & FUD Arsenal" title={<>Top 100 <span className="text-primary">powers</span></>}>
+          The official Battle Board orders players by activated fighting XP. Every player in the official Top 100
+          unlocks combat powers — drop to rank 101 and they're gone until you qualify again.
+        </Heading>
+        <div className="grid gap-4 md:grid-cols-3">
+          {POWERS.map((p, i) => (
+            <div key={p.name} className="slab group relative overflow-hidden rounded-2xl p-7 transition-transform hover:-translate-y-1">
+              <span className="font-display pointer-events-none absolute -right-2 -top-6 text-9xl text-primary/10">{i + 1}</span>
+              <p className="font-display text-fire text-3xl uppercase">{p.name}</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-sm text-muted-foreground">
+          The FUD Arsenal carries three categories: collectible weapons, traps/debuffs and arena disasters. Baseline FUD
+          events may stay random; Top 100 powers are a separate, deliberate action.
+        </p>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-2">
-          <div className="self-start overflow-hidden rounded-3xl border border-border bg-card">
-            <div className="bg-secondary px-6 py-4">
-              <p className="text-sm font-black uppercase tracking-widest text-foreground">The exchange ratio</p>
-            </div>
-            <table className="w-full text-left text-sm">
-              <tbody>
-                {XP_TABLE.map((row, i) => (
-                  <tr key={row.action} className={i % 2 === 0 ? "bg-background/40" : ""}>
-                    <td className="px-6 py-3 font-semibold text-muted-foreground">{row.action}</td>
-                    <td className="px-6 py-3 text-right font-extrabold text-primary">{row.amount}</td>
+          <div className="slab overflow-hidden rounded-2xl">
+            <div className="bg-secondary px-6 py-3"><p className="font-display text-lg uppercase text-foreground">Who qualifies — illustration</p></div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[440px] text-left text-sm">
+                <thead>
+                  <tr className="text-xs uppercase tracking-widest text-muted-foreground">
+                    <th className="px-5 py-3">Player</th><th className="px-5 py-3">Rank</th><th className="px-5 py-3 text-right">Activated XP</th><th className="px-5 py-3 text-center">Powers</th><th className="px-5 py-3 text-center">500K pool</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {BOARD_ROWS.map((r) => (
+                    <tr key={r.who} className="border-t border-border">
+                      <td className="px-5 py-3 font-bold text-foreground">{r.who}</td>
+                      <td className="font-display px-5 py-3 text-lg text-ember">#{r.rank}</td>
+                      <td className="px-5 py-3 text-right font-bold text-foreground">{r.xp}</td>
+                      <td className="px-5 py-3 text-center font-black">{r.powers ? <span className="text-primary">YES</span> : <span className="text-muted-foreground">NO</span>}</td>
+                      <td className="px-5 py-3 text-center font-black">{r.pool ? <span className="text-primary">YES</span> : <span className="text-muted-foreground">NO</span>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-
-          <div className="space-y-6">
-            <div className="rounded-3xl border border-border bg-card p-6">
-              <p className="text-lg font-extrabold text-foreground">The 24-hour clock</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                The claim window opens only when an individual batch reaches 1,000 XP. You then have
-                24 hours to activate it by completing the required 0.1 SOL payment. Every batch has
-                its own claim clock and status.
-              </p>
-              <ul className="mt-4 space-y-3">
-                {CLOCK_STATES.map((s) => (
-                  <li key={s.title} className="flex gap-3">
-                    <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-ember" />
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-extrabold text-foreground">{s.title}:</span> {s.desc}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-3xl border border-primary/40 bg-card p-6 card-glow">
-              <p className="text-sm font-black uppercase tracking-widest text-primary">Important distinction</p>
-              <p className="mt-2 text-lg font-extrabold text-foreground">
-                XP earned ≠ XP activated ≠ $TRENCH delivered
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Caps: 1,000,000 eligible activated XP per player/wallet (500,000 $TRENCH). Initial
-                program pool: 1,000,000,000 XP — 500,000,000 $TRENCH reserved for TGE distribution.
+          <div className="space-y-4">
+            <div className="slab rounded-2xl p-6">
+              <p className="text-xs font-black uppercase tracking-widest text-primary">Season 1 fighter prize pool</p>
+              <p className="font-display text-fire mt-1 text-5xl">500,000 $SAVIOUR</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Eligible: official Top 100 <b className="text-foreground">and</b> at least 100,000 activated fighting XP at the published snapshot.
+                The pro-rata formula isn't final — no equal shares or automatic payments are implied.
               </p>
             </div>
+            <Notice label="Fairness rule pending">Whether rank-gated advantages can affect XP earned against the CPU, and whether asymmetric powers are allowed in wagered PvP, is still being defined.</Notice>
           </div>
         </div>
       </div>
@@ -410,51 +431,40 @@ function XpSection() {
   );
 }
 
-function BattleBoardSection() {
+function SaviourSection() {
   return (
-    <section id="battle-board" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-24">
-      <SectionHeading kicker="Rankings" title="The Battle Board">
-        The public Battle Board recognizes players for activated XP and shows match results and
-        projected $TRENCH allocation. Ranked by activated XP — never by merely earned XP.
-      </SectionHeading>
-      <div className="card-glow overflow-hidden rounded-3xl border border-border bg-card">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
-              <tr className="bg-secondary text-xs uppercase tracking-widest text-muted-foreground">
-                <th className="px-6 py-4 font-black">Rank</th>
-                <th className="px-6 py-4 font-black">X Handle</th>
-                <th className="px-6 py-4 text-right font-black">Fights</th>
-                <th className="px-6 py-4 text-right font-black">Losses</th>
-                <th className="px-6 py-4 text-right font-black">Wins</th>
-                <th className="px-6 py-4 text-right font-black">Activated XP</th>
-                <th className="px-6 py-4 text-right font-black">$TRENCH</th>
-              </tr>
-            </thead>
-            <tbody>
-              {BOARD_ROWS.map((r, i) => (
-                <tr key={r.rank} className={i % 2 === 0 ? "bg-background/40" : ""}>
-                  <td className="px-6 py-4 text-xl font-black text-ember">{r.rank}</td>
-                  <td className="px-6 py-4 font-bold text-foreground">{r.handle}</td>
-                  <td className="px-6 py-4 text-right text-muted-foreground">{r.fights}</td>
-                  <td className="px-6 py-4 text-right text-muted-foreground">{r.losses}</td>
-                  <td className="px-6 py-4 text-right text-muted-foreground">{r.wins}</td>
-                  <td className="px-6 py-4 text-right font-extrabold text-primary">{r.xp}</td>
-                  <td className="px-6 py-4 text-right font-extrabold text-foreground">{r.trench}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <section id="saviour" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-24">
+      <Heading num="05" kicker="Referrals & token utility" title={<>Powered by <span className="text-fire">$SAVIOUR</span></>} />
+      <div className="mb-10 grid gap-6 lg:grid-cols-[1fr_1.3fr]">
+        <div className="slab rounded-2xl p-7">
+          <p className="text-xs font-black uppercase tracking-widest text-primary">Referral system</p>
+          <p className="font-display mt-2 text-6xl text-foreground">20%</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Earn referral XP equal to 20% of a referred player's successfully activated fighting XP — not raw fight XP
+            or mere registration. Example: 10,000 activated XP → 2,000 referral XP.
+          </p>
+        </div>
+        <div className="slab rounded-2xl p-7">
+          <p className="text-xs font-black uppercase tracking-widest text-primary">Season 1 referral pool</p>
+          <p className="font-display text-fire mt-2 text-5xl">100,000 $SAVIOUR</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Shared among the Top 50 qualified referrers on a separate Referral Leaderboard. Referral XP has no fixed
+            $SAVIOUR value, doesn't count toward the 1,000,000 fighting-XP cap, and Top 50 referral rank alone doesn't
+            unlock Top 100 powers.
+          </p>
         </div>
       </div>
-      <p className="mt-4 text-center text-xs text-muted-foreground">Illustrative figures only, not real player statistics.</p>
-      <div className="mx-auto mt-8 max-w-3xl rounded-3xl border border-border bg-card p-6 text-center">
-        <p className="text-sm font-black uppercase tracking-widest text-ember">Top 100 rewards · V2 only</p>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          When wagered PvP launches, 50% of all battle fees are designated for the Top 100 Battle
-          Board players, distributed proportionally to each player's share of the Top 100's total
-          activated XP. In V1 there are no wagered battle fees — CPU battles stay free of wagers.
-        </p>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {UTILITIES.map((u) => (
+          <div key={u.t} className="slab rounded-2xl p-6">
+            <p className="font-display text-xl uppercase text-primary">{u.t}</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{u.d}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <Notice label="Activation SOL use">50% of activation payments goes to Season 2 XP activation rewards and $SAVIOUR buyback-and-burn; 50% supports development and marketing.</Notice>
+        <Notice label="Treasury disclosure">The combined 600,000-token Season 1 pools require explicit funding, custody, eligibility and distribution approvals. They are not represented as escrowed or distributed.</Notice>
       </div>
     </section>
   );
@@ -462,29 +472,25 @@ function BattleBoardSection() {
 
 function RoadmapSection() {
   return (
-    <section id="roadmap" className="scroll-mt-24 bg-abyss/60 py-24">
-      <div className="mx-auto max-w-6xl px-4">
-        <SectionHeading kicker="Roadmap" title="Sequenced by capability">
-          Milestones are ordered by what ships, not by promised calendar dates. Exact sequencing can
-          change as engineering, audits and jurisdiction-specific requirements are resolved.
-        </SectionHeading>
-        <div className="grid gap-6 md:grid-cols-2">
-          {ROADMAP.map((p) => (
-            <div key={p.phase} className="rounded-3xl border border-border bg-card p-7 transition-colors hover:border-primary/50">
+    <section id="roadmap" className="scroll-mt-20 border-y-2 border-border bg-abyss py-24">
+      <div className="mx-auto max-w-7xl px-4">
+        <Heading num="06" kicker="V1 release roadmap" title="Launch gates">
+          A landing page or clearly labelled non-rewarded beta may launch before the token-reward programme. Reward
+          claims come only after the relevant gates pass.
+        </Heading>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {ROADMAP.map((g, i) => (
+            <div key={g.gate} className="slab relative rounded-2xl p-6">
               <div className="flex items-center gap-3">
-                <span className="rounded-xl bg-ember px-3 py-1 text-sm font-black text-primary-foreground">{p.phase}</span>
-                <h3 className="text-xl font-extrabold text-foreground">{p.title}</h3>
+                <span className={`font-display flex h-12 w-12 items-center justify-center rounded-xl text-xl ${i === 0 ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>{g.gate}</span>
+                <p className="font-display text-xl uppercase text-foreground">{g.title}</p>
               </div>
-              <ul className="mt-4 space-y-2.5">
-                {p.points.map((pt) => (
-                  <li key={pt} className="flex gap-3 text-sm text-muted-foreground">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                    {pt}
-                  </li>
-                ))}
-              </ul>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{g.cond}</p>
             </div>
           ))}
+        </div>
+        <div className="mt-8">
+          <Notice label="Fair play">Server-authorised deterministic CPU replays, protection against bot farming, multi-wallet abuse and self-referral, and the official rank snapshot as the single source of truth for powers and pool eligibility.</Notice>
         </div>
       </div>
     </section>
@@ -493,14 +499,14 @@ function RoadmapSection() {
 
 function FaqSection() {
   return (
-    <section id="faq" className="mx-auto max-w-4xl scroll-mt-24 px-4 py-24">
-      <SectionHeading kicker="Answers" title="Frequently asked questions" />
+    <section id="faq" className="mx-auto max-w-4xl scroll-mt-20 px-4 py-24">
+      <Heading num="07" kicker="Answers" title="FAQ" />
       <div className="space-y-3">
         {FAQS.map((f) => (
-          <details key={f.q} className="group rounded-2xl border border-border bg-card px-6 py-4 open:border-primary/50">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-extrabold text-foreground">
+          <details key={f.q} className="slab group rounded-xl px-6 py-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-black text-foreground">
               {f.q}
-              <span className="text-2xl font-black text-primary transition-transform group-open:rotate-45">+</span>
+              <span className="font-display text-3xl text-primary transition-transform group-open:rotate-45">+</span>
             </summary>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
           </details>
@@ -512,25 +518,18 @@ function FaqSection() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border bg-abyss py-12">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <img src={LOGO_URL} alt="Trench Brawl logo" className="h-14 w-14 rounded-2xl object-cover" />
-          <p className="text-lg font-black uppercase tracking-wide text-foreground">
-            Trench <span className="text-primary">Brawl</span>
-          </p>
-          <p className="text-sm font-bold uppercase tracking-[0.3em] text-muted-foreground">
-            Fight · Outplay · Dominate
-          </p>
-          <p className="max-w-3xl text-xs leading-relaxed text-muted-foreground">
-            This is a description of the planned Trench Brawl product. Features and mechanisms are
-            subject to deployment, technical validation, market conditions, applicable law and the
-            publication of binding terms. XP is a game score, not a transferable token. Until TGE and
-            actual token delivery, displayed $TRENCH values are future token allocations, not current
-            wallet balances. Nothing here is a price or profit promise.
-          </p>
-          <p className="text-xs text-muted-foreground">Official Product Documentation & Roadmap · Version 1.2 · October 2026</p>
-        </div>
+    <footer className="border-t-4 border-primary bg-abyss py-14">
+      <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 text-center">
+        <img src={LOGO_URL} alt="Trench Brawl logo" className="h-20 w-20 rounded-2xl object-cover" />
+        <p className="font-display text-2xl uppercase tracking-wide text-primary">Fight · Outplay · Dominate</p>
+        <p className="max-w-3xl text-xs leading-relaxed text-muted-foreground">
+          XP is a game progression record, not a present or guaranteed token balance or investment return. Ranking and
+          eligibility may change. Planned prizes require independently verified treasury funding and published rules.
+          No liquidity, exchange listing, price increase or return is promised. Future PvP wagers require separate legal
+          and operational approval. The token programme, activated-XP competition, Top 100 FUD powers, $SAVIOUR
+          distribution and V2 wagers are not claimed to be live.
+        </p>
+        <p className="text-xs text-muted-foreground">Saviour Edition · Version 1.4 · 11 November 2026 · trenchbrawl.xyz</p>
       </div>
     </footer>
   );
@@ -543,9 +542,11 @@ export default function Landing() {
       <main>
         <Hero />
         <StatsStrip />
+        <OverviewSection />
         <FightersSection />
         <XpSection />
-        <BattleBoardSection />
+        <PowersSection />
+        <SaviourSection />
         <RoadmapSection />
         <FaqSection />
       </main>

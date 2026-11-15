@@ -9,13 +9,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Trench Brawl is a Solana-native meme fighting game: 14 fighters, CPU battles, XP activation and $TRENCH rewards at TGE. PvP and wagering arrive in V2.",
+          "Trench Brawl: a meme-inspired Solana fighting game. Fight the CPU, earn XP, climb the Top 100 and compete for $SAVIOUR season prizes.",
       },
       { property: "og:title", content: "Trench Brawl — Fight. Outplay. Dominate." },
       {
         property: "og:description",
         content:
-          "Choose your fighter. Fight the CPU. Earn XP. Activate your rewards. V1 launches with 14 fighters; PvP wagering comes in V2.",
+          "Choose your fighter. Fight the CPU. Earn XP. Activate your rewards. Top 100 players unlock FUD powers and $SAVIOUR prize eligibility.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

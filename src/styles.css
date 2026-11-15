@@ -41,37 +41,38 @@
   --color-cyan-glow: var(--cyan-glow);
   --color-abyss: var(--abyss);
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lilita One", "Nunito", sans-serif;
 }
 
 :root {
-  --radius: 1rem;
-  --abyss: oklch(0.16 0.06 260);
-  --background: oklch(0.21 0.07 258);
-  --foreground: oklch(0.97 0.008 240);
-  --card: oklch(0.26 0.065 257);
-  --card-foreground: oklch(0.97 0.008 240);
-  --popover: oklch(0.24 0.07 258);
-  --popover-foreground: oklch(0.97 0.008 240);
-  --primary: oklch(0.8 0.13 220);
-  --primary-foreground: oklch(0.16 0.06 260);
-  --secondary: oklch(0.31 0.06 257);
-  --secondary-foreground: oklch(0.97 0.008 240);
-  --muted: oklch(0.27 0.05 257);
-  --muted-foreground: oklch(0.72 0.04 255);
-  --accent: oklch(0.33 0.06 256);
-  --accent-foreground: oklch(0.97 0.008 240);
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(0.98 0.003 247.858);
-  --ember: oklch(0.8 0.15 68);
-  --cyan-glow: oklch(0.86 0.14 214);
-  --border: oklch(0.36 0.05 256);
-  --input: oklch(0.36 0.05 256);
-  --ring: oklch(0.8 0.13 220);
-  --chart-1: oklch(0.8 0.13 220);
-  --chart-2: oklch(0.8 0.15 68);
-  --chart-3: oklch(0.65 0.12 145);
-  --chart-4: oklch(0.7 0.18 300);
-  --chart-5: oklch(0.65 0.19 20);
+  --radius: 0.75rem;
+  --abyss: oklch(0.14 0.03 30);
+  --background: oklch(0.17 0.035 32);
+  --foreground: oklch(0.97 0.02 85);
+  --card: oklch(0.22 0.045 32);
+  --card-foreground: oklch(0.97 0.02 85);
+  --popover: oklch(0.2 0.04 32);
+  --popover-foreground: oklch(0.97 0.02 85);
+  --primary: oklch(0.85 0.17 85);
+  --primary-foreground: oklch(0.18 0.05 35);
+  --secondary: oklch(0.28 0.06 32);
+  --secondary-foreground: oklch(0.97 0.02 85);
+  --muted: oklch(0.25 0.04 32);
+  --muted-foreground: oklch(0.76 0.04 70);
+  --accent: oklch(0.3 0.07 32);
+  --accent-foreground: oklch(0.97 0.02 85);
+  --destructive: oklch(0.6 0.22 28);
+  --destructive-foreground: oklch(0.98 0.01 85);
+  --ember: oklch(0.64 0.23 33);
+  --cyan-glow: oklch(0.9 0.15 90);
+  --border: oklch(0.34 0.06 35);
+  --input: oklch(0.34 0.06 35);
+  --ring: oklch(0.85 0.17 85);
+  --chart-1: oklch(0.85 0.17 85);
+  --chart-2: oklch(0.64 0.23 33);
+  --chart-3: oklch(0.7 0.18 60);
+  --chart-4: oklch(0.6 0.15 20);
+  --chart-5: oklch(0.8 0.1 90);
 }
 
 @layer base {
@@ -98,8 +99,9 @@
   h1,
   h2,
   h3 {
-    font-weight: 800;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
   }
 }
 
@@ -134,3 +136,33 @@
   backdrop-filter: blur(14px);
   border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
 }
+
+@utility text-fire {
+  background: linear-gradient(180deg, var(--color-foreground) 0%, var(--color-primary) 45%, var(--color-ember) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 0 color-mix(in oklab, var(--color-abyss) 90%, transparent));
+}
+
+@utility slab {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--color-card) 100%, var(--color-primary) 4%), var(--color-card));
+  border: 2px solid var(--color-border);
+  box-shadow: 0 6px 0 0 var(--color-abyss), 0 20px 50px -20px color-mix(in oklab, var(--color-ember) 35%, transparent);
+}
+
+@utility btn-game {
+  background: linear-gradient(180deg, var(--color-primary), color-mix(in oklab, var(--color-primary) 60%, var(--color-ember)));
+  color: var(--color-primary-foreground);
+  box-shadow: 0 5px 0 0 color-mix(in oklab, var(--color-ember) 70%, var(--color-abyss));
+  transition: transform 0.15s, box-shadow 0.15s;
+  &:hover { transform: translateY(-2px); }
+  &:active { transform: translateY(3px); box-shadow: 0 2px 0 0 color-mix(in oklab, var(--color-ember) 70%, var(--color-abyss)); }
+}
+
+@utility stripes {
+  background-image: repeating-linear-gradient(-45deg, color-mix(in oklab, var(--color-primary) 6%, transparent) 0 14px, transparent 14px 28px);
+}
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@utility animate-marquee { animation: marquee 30s linear infinite; }
