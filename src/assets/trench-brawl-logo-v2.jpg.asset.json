@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "655a6ac8-6905-4cd2-95bf-81ee27efb955",
-  "project_id": "b0c92eb4-37ab-4b3a-bd6b-1fd385125a40",
-  "url": "/__l5e/assets-v1/655a6ac8-6905-4cd2-95bf-81ee27efb955/trench-brawl-logo-v2.jpg",
-  "r2_key": "a/v1/b0c92eb4-37ab-4b3a-bd6b-1fd385125a40/655a6ac8-6905-4cd2-95bf-81ee27efb955/trench-brawl-logo-v2.jpg",
-  "original_filename": "trench-brawl-logo-v2.jpg",
-  "size": 260936,
   "content_type": "image/jpeg",
-  "created_at": "2026-11-15T21:21:16Z"
+  "created_at": "2026-11-15T21:21:16Z",
+  "original_filename": "trench-brawl-logo-v2.jpg",
+  "project_id": "382de1b3-59db-4c1e-9c6e-a9538215639a",
+  "r2_key": "a/v1/382de1b3-59db-4c1e-9c6e-a9538215639a/655a6ac8-6905-4cd2-95bf-81ee27efb955/trench-brawl-logo-v2.jpg",
+  "size": 260936,
+  "url": "/__l5e/assets-v1/655a6ac8-6905-4cd2-95bf-81ee27efb955/trench-brawl-logo-v2.jpg",
+  "version": 1
 }
