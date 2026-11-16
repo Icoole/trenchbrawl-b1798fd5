@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, Sparkles, X } from "lucide-react";
+import { Check, Copy, Menu, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ArenaScene from "@/components/ArenaScene";
 import logoAsset from "@/assets/trench-brawl-logo-v2.jpg.asset.json";
@@ -21,6 +21,12 @@ import turboImg from "@/assets/fighter-turbo.png.asset.json";
 
 const LOGO_URL = logoAsset.url;
 const TOKEN_ADDRESS = "5Htub56zFC6gyp4UKKjEb21JTSrWheHbNwbxmXedbonk";
+const SOCIALS = [
+  { name: "X / Twitter", url: "https://x.com/Trench_brawl" },
+  { name: "Telegram", url: "https://t.me/Trench_brawl" },
+  { name: "YouTube", url: "https://www.youtube.com/@Trench_brawl" },
+];
+const DISCORD_HANDLE = "Trench_brawl";
 
 const NAV_LINKS = [
   { label: "Home", to: "/" },
@@ -31,9 +37,9 @@ const NAV_LINKS = [
 
 const STATS = [
   { value: "100 XP", label: "Per verified CPU win" },
-  { value: "1,000", label: "XP per activation block" },
-  { value: "500K", label: "$SAVIOUR fighter pool" },
-  { value: "100K", label: "$SAVIOUR referral pool" },
+  { value: "1,000", label: "Qualifying XP per proposed activation block" },
+  { value: "500K", label: "Planned Season 1 fighter pool" },
+  { value: "100K", label: "Planned Season 1 referral pool" },
 ];
 
 const LOOP = [
@@ -113,6 +119,28 @@ const FAQS = [
   { q: "Are the season pools equally divided?", a: "No formula has been approved. Both distribution formulas and the treatment of unallocated tokens must be published before payouts." },
   { q: "Do I need $SAVIOUR to play V1?", a: "No. V1 CPU practice does not require token ownership or wagers. Official reward eligibility has separate conditions." },
   { q: "Are NFTs or CPU wagers included?", a: "No. NFTs were removed, and V1 CPU battles are not wagered." },
+  { q: "Does referral XP count toward fighting XP or the Battle Board?", a: "No. Referral XP is tracked separately, does not count toward activated fighting XP or the 1,000,000 fighting-XP cap, and never silently changes the official Battle Board rank." },
+  { q: "Can a Top 50 referrer use Top 100 combat powers?", a: "No. Referral rank alone does not grant FUD CALL, FUD ESCAPE or fighter special moves; those are tied to official Top 100 fighter rank." },
+  { q: "Are token pools funded or held in escrow?", a: "The documents do not claim that the combined 600,000 $SAVIOUR Season 1 pools are funded, escrowed, liquid or distributed. Funding and custody must be approved and verified first." },
+  { q: "Is the token address independently verified?", a: "The address is confirmed by the project owner for documentation, but independent on-chain mint, authority, balance and treasury verification is still required before public distributions." },
+  { q: "Can I earn XP as a guest?", a: "Guests can practice against the CPU, but guest fights do not save rewards or create rank-based entitlements." },
+  { q: "Is the X handle on a player profile verified?", a: "No. A profile handle is self-declared; entering it does not prove ownership of the X account." },
+  { q: "When do FUD CALL, FUD ESCAPE and special moves launch?", a: "They are planned rank-based powers, not claimed as live. Their charges, cooldowns, timing and fair-play rules still need approval and verified implementation." },
+  { q: "What is planned for V2?", a: "Human-versus-human play and proposed $SAVIOUR wagering are future plans only; they require separate technical, legal and operational approval." },
+  { q: "Does XP guarantee a token balance or return?", a: "No. XP records game progression and does not promise tokens, liquidity, exchange listings, price increases or investment returns." },
+];
+
+const OPEN_DECISIONS = [
+  { decision: "Approve the final 14-fighter roster and verify every move and hitbox.", before: "V1 fighter sign-off" },
+  { decision: "Approve the replacement interface and map every screen and feature.", before: "UI migration" },
+  { decision: "Confirm the source, ownership and custody of both Season 1 pools.", before: "Prize announcement or payout" },
+  { decision: "Publish both pool formulas, dates, snapshots, tie-breaks, rounding and unallocated-token treatment.", before: "Reward distribution" },
+  { decision: "Set when Top 100 powers begin and how rank changes affect an active fight.", before: "Powers release" },
+  { decision: "Approve the FUD list, charges, cooldowns, overlapping effects and target rules.", before: "FUD launch" },
+  { decision: "Publish the activation-proceeds split, burn reporting and Season 2 allocation.", before: "Activation launch" },
+  { decision: "Confirm the status of earlier Dominant Fighter community-token airdrops.", before: "Official public docs" },
+  { decision: "Reconfirm the earlier 400M referral-XP and 1B fighting-XP accounting ceilings.", before: "Season rules" },
+  { decision: "Set the V2 platform fee and rules for combat-power fairness in PvP.", before: "V2" },
 ];
 
 function Heading({ num, kicker, title, children }: { num: string; kicker: string; title: React.ReactNode; children?: React.ReactNode }) {
@@ -231,9 +259,10 @@ function Hero() {
             <Sparkles aria-hidden="true" className="size-4" /> Arcade mode: on
           </p>
           <h1 className="text-fire mt-6 text-5xl uppercase leading-[0.95] sm:text-7xl">Pick a fight.<br />Make a legend.</h1>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg lg:mx-0">
-            A meme-inspired, Solana-connected fighting game built around fast combat, fighter identities and
-            competitive progression. Earn verified XP, climb the Battle Board and unlock Top 100 powers.
+        <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg lg:mx-0">
+            A meme-inspired, Solana-connected fighting game. In V1, pick a fighter and take on the CPU in a
+            non-wagered, single-round match. Verified wins earn fighting XP; seasonal rewards and rank powers
+            remain subject to their published launch conditions.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4 lg:justify-start">
             <Link to="/fighters" className="btn-game font-display rounded-xl px-8 py-3 text-xl uppercase">Choose fighter</Link>
@@ -286,6 +315,7 @@ function OverviewSection() {
   const rows = [
     ["Game", "Trench Brawl"], ["Network", "Solana"], ["Website", "trenchbrawl.xyz"],
     ["Ecosystem token", "$SAVIOUR"], ["Tagline", "Fight · Outplay · Dominate"],
+    ["V1 format", "Single-round CPU · no wagers"], ["Launch roster target", "14 fighters · final audit pending"],
   ];
   return (
     <section className="mx-auto max-w-7xl px-4 pb-24">
@@ -297,6 +327,10 @@ function OverviewSection() {
             V2 introduces human-versus-human competition and proposed $SAVIOUR wagering.
           </Heading>
           <Notice label="Token update">$SAVIOUR replaces the former $TRENCH token in all product economics, rewards and token references.</Notice>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <Notice label="Wallet & profile">V1 wallet sign-in uses a Solana wallet signature, not email or password. Profiles include a self-declared X handle and Dominant Fighter; the handle is not verified for account ownership.</Notice>
+            <Notice label="Practice access">Guests may practice CPU fights without saving rewards or receiving rank-based entitlements. Token ownership is not required to play V1.</Notice>
+          </div>
         </div>
         <div className="slab rounded-2xl p-6">
           {rows.map(([k, v]) => (
@@ -377,7 +411,7 @@ function FightersSection() {
         </div>
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <Notice label="Guests & wallets">Guests can play practice CPU fights without saving rewards. Sign in with a Solana wallet signature — Phantom, Solflare, Backpack and compatible providers.</Notice>
-          <Notice label="Roster control">The launch target is 14 fighters; nine are reported playable. Final roster, moves, animations and hitboxes still require sign-off.</Notice>
+          <Notice label="Roster control">The launch target is 14 fighters; nine are reported playable. This gallery is not a final roster approval: earlier lists conflict (including WikiCat versus MOG and TURBO). Fighter identities, moves, animations and hitboxes still require sign-off.</Notice>
         </div>
       </div>
     </section>
@@ -409,7 +443,12 @@ function XpSection() {
             </p>
           </div>
           <Notice label="No fixed conversion">The earlier XP-to-token conversion was superseded. The 1,000,000,000-XP ceiling is not a promise of any total token emission.</Notice>
+          <Notice label="Activation safeguards">Activation is proposed at 0.1 SOL per completed 1,000-XP block, with a 24-hour claim window after it becomes claimable. Wallet-linked payment verification, server-side expiry and fraud checks are required. Refund, cancellation and support rules still need to be made clear before activation opens.</Notice>
         </div>
+      </div>
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <Notice label="Battle Board rules">The official Board ranks qualified players by activated fighting XP. Before activation opens, any Board must be labelled provisional and may use verified earned XP; it must not be presented as the activated-XP Top 100. Referral XP never silently counts toward this ranking.</Notice>
+        <Notice label="Accounting boundaries">Earned XP, activated fighting XP, referral XP, expired XP and reversals are separate categories. The existing 1,000,000 XP per-player cap and 1,000,000,000 XP programme ceiling are accounting assumptions, not a fixed token conversion; both remain subject to season-rule confirmation.</Notice>
       </div>
     </section>
   );
@@ -436,6 +475,13 @@ function PowersSection() {
           The FUD Arsenal carries three categories: collectible weapons, traps/debuffs and arena disasters. Baseline FUD
           events may stay random; Top 100 powers are a separate, deliberate action.
         </p>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <Notice label="FUD CALL rules">A call targets an opponent with an approved FUD move (for example, an FTX-style hammer) without harming the caller. Every event should record its ID, initiator, target, activation tick and effects in deterministic replay.</Notice>
+          <Notice label="FUD ESCAPE rules">Escape the protected FUD without losing health. Charges, cooldowns and treatment of non-health debuffs still need a defined rule enforced by the combat simulation.</Notice>
+          <Notice label="Special move rules">Fighter-specific attacks need approved animations, hitboxes, balance, availability rules and verified replay support before release.</Notice>
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">Power access should use an authoritative published rank check at an approved match or action boundary, not browser-editable state. The client and trusted replay verifier must agree on FUD rules, CPU responses, seeds, cooldowns and per-tick inputs; otherwise fair fights may fail verification or invalid play may pass.</p>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-2">
           <div className="slab overflow-hidden rounded-2xl">
@@ -510,8 +556,15 @@ function SaviourSection() {
         ))}
       </div>
       <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <Notice label="Activation SOL use">50% of activation payments goes to Season 2 XP activation rewards and $SAVIOUR buyback-and-burn; 50% supports development and marketing.</Notice>
+        <Notice label="Referral integrity">Referral XP is 20% of a referred player's successfully activated fighting XP—not raw wins or wallet registration. It is tracked separately, with anti-self-referral controls, no recursive earnings and audited reversals. A previous 400,000,000 referral-XP ceiling is only an older assumption pending confirmation.</Notice>
+        <Notice label="V2 fee proposal">A previous proposal discussed a 5% fee on the combined PvP wager pool; it must be reconfirmed before V2. If approved, the current proposal directs 50% of future PvP platform fees to buyback-and-burn and 50% to development and marketing. No V1 CPU wager or battle-fee distribution exists.</Notice>
+      </div>
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <Notice label="Activation SOL use">50% of collected activation payments is designated collectively for Season 2 XP activation rewards and $SAVIOUR buyback-and-burn; 50% supports development and marketing. The split within the first half and public reporting are not yet specified.</Notice>
         <Notice label="Treasury disclosure">The combined 600,000-token Season 1 pools require explicit funding, custody, eligibility and distribution approvals. They are not represented as escrowed or distributed.</Notice>
+      </div>
+      <div className="mt-4">
+        <Notice label="Superseded economics">This release replaces earlier $TRENCH allocations, fixed token-per-XP equations, NFT rewards, Top 100 PvP fee-sharing and token-holder-threshold special powers. Earlier Dominant Fighter community-token airdrop status remains to be confirmed.</Notice>
       </div>
     </section>
   );
@@ -537,7 +590,25 @@ function RoadmapSection() {
           ))}
         </div>
         <div className="mt-8">
-          <Notice label="Fair play">Server-authorised deterministic CPU replays, protection against bot farming, multi-wallet abuse and self-referral, and the official rank snapshot as the single source of truth for powers and pool eligibility.</Notice>
+          <Notice label="Fair play & integrity">Use a server-authorised deterministic CPU replay and atomic settlement model, with production deployment separately approved. Disable legacy browser-authorised XP award paths in production; preserve idempotency, rate limits, rejection audit trails and account isolation. Protect against bot farming, replay/seed reuse, scripted submissions, multi-wallet abuse and self-referrals—replay consistency alone does not prove a human played. The official rank snapshot must control powers and pool eligibility, including rank corrections and entry/exit timing. Changes to hitboxes, FUD, AI, fighters or attacks require regenerated replay assets and hash regression tests.</Notice>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <Notice label="Player protections">Use only project-owned or properly licensed music and sound effects; provide mute and volume controls and readable FUD indicators. Preserve guest practice, wallet-signature sign-in, data minimization and separation between staging and live systems. Prepare privacy, terms, support and incident-response information.</Notice>
+          <Notice label="Wagering review">Any future wagered PvP needs jurisdiction-specific legal advice and reviews covering custody, contest and gambling rules, fairness, payouts and settlement. V2 wagering is not part of V1 and is not claimed to be live.</Notice>
+        </div>
+        <div className="mt-12">
+          <Heading num="08" kicker="Before launch" title="Open decisions" />
+          <div className="slab overflow-hidden rounded-xl">
+            {OPEN_DECISIONS.map((item) => (
+              <div key={item.decision} className="grid gap-2 border-b border-border px-5 py-4 last:border-0 sm:grid-cols-[1fr_auto] sm:items-center">
+                <span className="text-sm leading-relaxed text-foreground">{item.decision}</span>
+                <span className="text-xs font-black uppercase text-primary">Before: {item.before}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-10">
+          <Notice label="Reported status at publication">The team reports a working staging build with CPU replay verification and XP settlement. The token programme, public activated-XP competition, Top 100 FUD powers, $SAVIOUR distributions and V2 wagers are not claimed to be live. A non-rewarded landing page or clearly labelled beta can precede reward-programme launch.</Notice>
         </div>
       </div>
     </section>
@@ -569,6 +640,12 @@ function Footer() {
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 text-center">
         <img src={LOGO_URL} alt="Trench Brawl logo" className="h-20 w-20 rounded-2xl object-cover" />
         <p className="font-display text-2xl uppercase tracking-wide text-primary">Fight · Outplay · Dominate</p>
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3" aria-label="Trench Brawl social accounts">
+          {SOCIALS.map((social) => (
+            <a key={social.name} href={social.url} target="_blank" rel="noreferrer" className="text-sm font-black uppercase text-foreground underline decoration-primary underline-offset-4 transition-colors hover:text-primary">{social.name}<span className="sr-only"> (opens in a new tab)</span></a>
+          ))}
+          <span className="text-sm font-black uppercase text-foreground">Discord: {DISCORD_HANDLE}</span>
+        </div>
         <p className="max-w-3xl text-xs leading-relaxed text-muted-foreground">
           XP is a game progression record, not a present or guaranteed token balance or investment return. Ranking and
           eligibility may change. Planned prizes require independently verified treasury funding and published rules.
@@ -577,6 +654,7 @@ function Footer() {
           distribution and V2 wagers are not claimed to be live.
         </p>
         <p className="font-display text-lg uppercase text-ember">GGs only · Rematch whenever · trenchbrawl.xyz</p>
+        <p className="max-w-3xl text-xs leading-relaxed text-muted-foreground">The token address is owner-confirmed for documentation; independent mint, authority, balance and treasury verification is required before distributions. XP is progression—not a token balance, investment return or promise of liquidity, listing or price movement. Activation must disclose its fee, expiry, cancellation/refund and support rules.</p>
       </div>
     </footer>
   );
