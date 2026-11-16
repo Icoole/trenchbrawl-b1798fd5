@@ -5,17 +5,17 @@ export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Trench Brawl — Fight. Outplay. Dominate." },
+      { title: "Trench Brawl — Pick a fight. Make a legend." },
       {
         name: "description",
         content:
-          "Trench Brawl: a meme-inspired Solana fighting game. Fight the CPU, earn XP, climb the Top 100 and compete for $SAVIOUR season prizes.",
+          "Enter the Trench Brawl arcade: choose your fighter, battle the CPU, build XP, and explore the latest game and reward rules.",
       },
-      { property: "og:title", content: "Trench Brawl — Fight. Outplay. Dominate." },
+      { property: "og:title", content: "Trench Brawl — Pick a fight. Make a legend." },
       {
         property: "og:description",
         content:
-          "Choose your fighter. Fight the CPU. Earn XP. Activate your rewards. Top 100 players unlock FUD powers and $SAVIOUR prize eligibility.",
+          "Choose from 14 fighters, jump into a CPU battle, and explore Trench Brawl's game loop, rewards, and roadmap.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

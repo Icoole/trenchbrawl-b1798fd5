@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { Menu, Sparkles, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import ArenaScene from "@/components/ArenaScene";
 import logoAsset from "@/assets/trench-brawl-logo-v2.jpg.asset.json";
 import dogeImg from "@/assets/fighter-doge.png.asset.json";
@@ -20,13 +23,11 @@ const LOGO_URL = logoAsset.url;
 const TOKEN_ADDRESS = "5Htub56zFC6gyp4UKKjEb21JTSrWheHbNwbxmXedbonk";
 
 const NAV_LINKS = [
-  { label: "Fighters", href: "#fighters" },
-  { label: "XP", href: "#xp" },
-  { label: "Powers", href: "#powers" },
-  { label: "$SAVIOUR", href: "#saviour" },
-  { label: "Roadmap", href: "#roadmap" },
-  { label: "FAQ", href: "#faq" },
-];
+  { label: "Home", to: "/" },
+  { label: "Fighters", to: "/fighters" },
+  { label: "Rewards", to: "/rewards" },
+  { label: "Roadmap & FAQ", to: "/roadmap" },
+] as const;
 
 const STATS = [
   { value: "100 XP", label: "Per verified CPU win" },
@@ -181,22 +182,41 @@ function FighterCard({ f }: { f: (typeof FIGHTERS)[number] }) {
 }
 
 function Nav() {
+  const [open, setOpen] = useState(false);
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b-2 border-border bg-abyss/85 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5">
-        <a href="#top" className="flex items-center gap-3">
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 lg:flex lg:justify-between">
+        <Link to="/" onClick={() => setOpen(false)} className="flex min-w-0 items-center gap-3">
           <img src={LOGO_URL} alt="Trench Brawl logo" className="h-11 w-11 rounded-lg object-cover" />
-          <span className="font-display hidden text-xl uppercase text-foreground sm:inline">Trench <span className="text-primary">Brawl</span></span>
-        </a>
+          <span className="font-display truncate text-xl uppercase text-foreground">Trench <span className="text-primary">Brawl</span></span>
+        </Link>
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="rounded-lg px-3 py-2 text-sm font-black uppercase tracking-wide text-muted-foreground transition-colors hover:bg-secondary hover:text-primary">
+            <Link key={l.to} to={l.to} activeProps={{ className: "text-primary bg-secondary" }} className="rounded-lg px-3 py-2 text-sm font-black uppercase tracking-wide text-muted-foreground transition-colors hover:bg-secondary hover:text-primary">
               {l.label}
-            </a>
+            </Link>
           ))}
         </nav>
-        <a href="#fighters" className="btn-game font-display rounded-xl px-5 py-2 text-lg uppercase">Play</a>
+        <div className="flex items-center gap-2">
+          <Link to="/fighters" className="btn-game font-display hidden rounded-xl px-5 py-2 text-lg uppercase sm:inline-flex">Play</Link>
+          <Button type="button" variant="outline" size="icon" className="lg:hidden" aria-label={open ? "Close navigation menu" : "Open navigation menu"} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen((value) => !value)}>
+            {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          </Button>
+        </div>
       </div>
+      {open ? (
+        <nav id="mobile-navigation" aria-label="Mobile navigation" className="border-t-2 border-border bg-abyss px-4 py-3 shadow-xl lg:hidden">
+          <div className="mx-auto grid max-w-7xl gap-1">
+            {NAV_LINKS.map((l) => (
+              <Link key={l.to} to={l.to} onClick={() => setOpen(false)} activeProps={{ className: "bg-secondary text-primary" }} className="rounded-lg px-4 py-3 text-sm font-black uppercase text-muted-foreground hover:bg-secondary hover:text-primary">
+                {l.label}
+              </Link>
+            ))}
+            <Link to="/fighters" onClick={() => setOpen(false)} className="btn-game mt-2 rounded-lg px-4 py-3 text-center font-display text-lg uppercase sm:hidden">Choose a fighter</Link>
+          </div>
+        </nav>
+      ) : null}
     </header>
   );
 }
@@ -207,18 +227,17 @@ function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_70%_40%,color-mix(in_oklab,var(--color-ember)_30%,transparent),transparent_70%)]" />
       <div className="relative mx-auto grid min-h-[92svh] max-w-7xl items-center gap-6 px-4 lg:grid-cols-[1fr_1.15fr]">
         <div className="relative z-10 py-12 text-center lg:text-left">
-          <p className="inline-block rounded-lg border-2 border-primary/60 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.25em] text-primary">
-            Saviour Edition · V1.4
+          <p className="inline-flex -rotate-2 items-center gap-2 rounded-lg border-2 border-primary bg-primary px-3 py-2 text-xs font-black uppercase text-primary-foreground shadow-lg">
+            <Sparkles aria-hidden="true" className="size-4" /> Arcade mode: on
           </p>
-          <img src={LOGO_URL} alt="Trench Brawl" className="mx-auto mt-6 w-64 rounded-3xl border-4 border-primary/40 shadow-2xl sm:w-80 lg:mx-0" />
-          <h1 className="text-fire mt-6 text-4xl uppercase leading-none sm:text-6xl">Fight · Outplay · Dominate</h1>
+          <h1 className="text-fire mt-6 text-5xl uppercase leading-[0.95] sm:text-7xl">Pick a fight.<br />Make a legend.</h1>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg lg:mx-0">
             A meme-inspired, Solana-connected fighting game built around fast combat, fighter identities and
             competitive progression. Earn verified XP, climb the Battle Board and unlock Top 100 powers.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4 lg:justify-start">
-            <a href="#fighters" className="btn-game font-display rounded-xl px-8 py-3 text-xl uppercase">Choose fighter</a>
-            <a href="#saviour" className="font-display rounded-xl border-2 border-border bg-card px-8 py-3 text-xl uppercase text-foreground transition-colors hover:border-primary">$SAVIOUR</a>
+            <Link to="/fighters" className="btn-game font-display rounded-xl px-8 py-3 text-xl uppercase">Choose fighter</Link>
+            <Link to="/rewards" className="font-display rounded-xl border-2 border-border bg-card px-8 py-3 text-xl uppercase text-foreground transition-colors hover:border-primary">Rewards</Link>
           </div>
         </div>
         <div className="relative h-[52svh] min-h-[340px] lg:h-[80svh]">
@@ -299,6 +318,34 @@ function OverviewSection() {
               </button>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Confirmed by the project owner; independent on-chain verification must be completed before public distributions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function EarlierBuildSection() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-24">
+      <div className="grid gap-6 border-y-2 border-border py-8 md:grid-cols-[0.8fr_1.2fr] md:items-center">
+        <div>
+          <p className="text-xs font-black uppercase text-ember">From the earlier build · archive</p>
+          <h2 className="font-display mt-2 text-3xl uppercase text-foreground">The brawl has levelled up</h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            The first version introduced the XP-and-claim idea. Its reward figures and token references were proposals, not current rules.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="font-display text-xl uppercase text-primary">Old draft flow</p>
+            <p className="mt-2 text-sm font-bold text-foreground">100 wins → 1,000 XP → 0.1 SOL → 500 $TRENCH</p>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Superseded. The current version uses $SAVIOUR season pools and does not promise a fixed token conversion.</p>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="font-display text-xl uppercase text-primary">Old 24-hour claim states</p>
+            <p className="mt-2 text-sm font-bold text-foreground">Accumulating · Ready · Claimed · Expired</p>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Shown as a previous-version feature; current eligibility and activation follow the latest published rules.</p>
           </div>
         </div>
       </div>
@@ -529,26 +576,23 @@ function Footer() {
           and operational approval. The token programme, activated-XP competition, Top 100 FUD powers, $SAVIOUR
           distribution and V2 wagers are not claimed to be live.
         </p>
-        <p className="text-xs text-muted-foreground">Saviour Edition · Version 1.4 · 11 November 2026 · trenchbrawl.xyz</p>
+        <p className="font-display text-lg uppercase text-ember">GGs only · Rematch whenever · trenchbrawl.xyz</p>
       </div>
     </footer>
   );
 }
 
-export default function Landing() {
+export type LandingPage = "home" | "fighters" | "rewards" | "roadmap";
+
+export default function Landing({ page = "home" }: { page?: LandingPage }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Nav />
       <main>
-        <Hero />
-        <StatsStrip />
-        <OverviewSection />
-        <FightersSection />
-        <XpSection />
-        <PowersSection />
-        <SaviourSection />
-        <RoadmapSection />
-        <FaqSection />
+        {page === "home" ? <><Hero /><StatsStrip /><OverviewSection /><EarlierBuildSection /></> : null}
+        {page === "fighters" ? <FightersSection /> : null}
+        {page === "rewards" ? <><XpSection /><PowersSection /><SaviourSection /></> : null}
+        {page === "roadmap" ? <><RoadmapSection /><FaqSection /></> : null}
       </main>
       <Footer />
     </div>

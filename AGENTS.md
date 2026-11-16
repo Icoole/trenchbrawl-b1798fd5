@@ -10,5 +10,5 @@
 <!-- LOVABLE:END -->
 
 ## 3D site
-- The Trench Brawl landing is a single-page site; the R3F hero scene runs on the `/` route with `ssr: false` (route-level), so `<Canvas>` never server-renders.
+- Trench Brawl is a small multipage site with the 3D R3F hero scene restricted to `/` using route-level `ssr: false`, so `<Canvas>` never server-renders.
 - Brand imagery (logo, fighter banner) is served through lovable-assets `.asset.json` pointers in `src/assets/`; never copy those binaries into the repo.
